@@ -45,6 +45,12 @@ public class SpaceInvadersApp extends JFrame {
         
         JMenuItem menuItemGamePause = new JMenuItem("Pause", KeyEvent.VK_P);
         menuItemGamePause.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
+        menuItemGamePause.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                game.gameStop();
+            }
+        });
         menuGame.add(menuItemGamePause);
         
         menuGame.addSeparator();
@@ -78,6 +84,7 @@ public class SpaceInvadersApp extends JFrame {
         // Cause outer components to adjust to the the size of the canvas:
         pack();
         
+        // Initialise canvas buffer - must be done following pack.
         game.initBuffer();
         
         // Our game canvas has a fixed size - don't let user's change
@@ -92,8 +99,8 @@ public class SpaceInvadersApp extends JFrame {
      * Start the game loop.
      */
     public void start() {
-        //game.requestFocus();
-        game.gameLoop();
+        game.requestFocus();
+        game.gameStart();
     }
     
     /**

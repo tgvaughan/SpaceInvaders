@@ -4,6 +4,8 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -13,6 +15,7 @@ import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.Timer;
 
 /**
  * The main hook of our game. This class with both act as a manager for the
@@ -102,6 +105,11 @@ public class GameCanvas extends Canvas {
     private boolean logicRequiredThisLoop = false;
     
     /**
+     * Timer used to run game.
+     */
+    private final Timer timer;
+    
+    /**
      * Construct our game and set it running.
      */
     public GameCanvas() {
@@ -120,6 +128,15 @@ public class GameCanvas extends Canvas {
 		// initialise the entities in our game so there's something
         // to see at startup
         initEntities();
+        
+        // Set up game timer.
+        timer = new Timer(10, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gameIterate();
+            }
+        });
+        
     }
     
 
@@ -238,11 +255,25 @@ public class GameCanvas extends Canvas {
 
     /**
      * Create the buffering strategy which will allow AWT 
-     * to manage our accelerated graphics. Must be called before gameLoop().
+     * to manage our accelerated graphics.
      */
     public void initBuffer() {
         createBufferStrategy(2);
         strategy = getBufferStrategy();
+    }
+    
+    /**
+     * Start the game.
+     */
+    public void gameStart() {
+        timer.start();
+    }
+    
+    /**
+     * Stop/pause the game.
+     */
+    public void gameStop() {
+        timer.stop();
     }
     
     /**
@@ -254,94 +285,77 @@ public class GameCanvas extends Canvas {
      * game events - Checking Input
      * <p>
      */
-    public void gameLoop() {
+    public void gameIterate() {
 
-        long lastLoopTime = System.currentTimeMillis();
+        long delta = 10;
 
-        // keep looping round til the game ends
-        while (gameRunning) {
-			// work out how long its been since the last update, this
-            // will be used to calculate how far the entities should
-            // move this loop
-            long delta = System.currentTimeMillis() - lastLoopTime;
-            lastLoopTime = System.currentTimeMillis();
+        // Get hold of a graphics context for the accelerated 
+        // surface and blank it out
+        Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+        g.setColor(Color.black);
+        g.fillRect(0, 0, 800, 600);
 
-			// Get hold of a graphics context for the accelerated 
-            // surface and blank it out
-            Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
-            g.setColor(Color.black);
-            g.fillRect(0, 0, 800, 600);
+        // cycle round asking each entity to move itself
+        for (Entity entity : entities) {
+            entity.move(delta);
+        }
 
-            // cycle round asking each entity to move itself
-            for (Entity entity : entities) {
-                    entity.move(delta);
-            }
+        for (Entity entity : entities) {
+            entity.draw(g);
+        }
 
-            for (Entity entity : entities) {
-                entity.draw(g);
-            }
-
-			// brute force collisions, compare every entity against
-            // every other entity. If any of them collide notify 
-            // both entities that the collision has occured
-            for (int p = 0; p < entities.size(); p++) {
-                for (int s = p + 1; s < entities.size(); s++) {
-                    Entity me = (Entity) entities.get(p);
-                    Entity him = (Entity) entities.get(s);
-
-                    if (me.collidesWith(him)) {
-                        me.collidedWith(him);
-                        him.collidedWith(me);
-                    }
+        // brute force collisions, compare every entity against
+        // every other entity. If any of them collide notify 
+        // both entities that the collision has occured
+        for (int p = 0; p < entities.size(); p++) {
+            for (int s = p + 1; s < entities.size(); s++) {
+                Entity me = (Entity) entities.get(p);
+                Entity him = (Entity) entities.get(s);
+                
+                if (me.collidesWith(him)) {
+                    me.collidedWith(him);
+                    him.collidedWith(me);
                 }
             }
+        }
 
-            // remove any entity that has been marked for clear up
-            entities.removeAll(removeList);
-            removeList.clear();
-
-			// if a game event has indicated that game logic should
-            // be resolved, cycle round every entity requesting that
-            // their personal logic should be considered.
-            if (logicRequiredThisLoop) {
-                for (Entity entity : entities) {
-                    entity.doLogic();
-                }
-
-                logicRequiredThisLoop = false;
+        // remove any entity that has been marked for clear up
+        entities.removeAll(removeList);
+        removeList.clear();
+        
+        // if a game event has indicated that game logic should
+        // be resolved, cycle round every entity requesting that
+        // their personal logic should be considered.
+        if (logicRequiredThisLoop) {
+            for (Entity entity : entities) {
+                entity.doLogic();
             }
-
-			// finally, we've completed drawing so clear up the graphics
-            // and flip the buffer over
-            g.dispose();
-            strategy.show();
             
-            if (gameOverConditionMet())
-                return;
+            logicRequiredThisLoop = false;
+        }
+        
+        // finally, we've completed drawing so clear up the graphics
+        // and flip the buffer over
+        g.dispose();
+        strategy.show();
+        
+        if (gameOverConditionMet())
+            return;
 
-			// resolve the movement of the ship. First assume the ship 
-            // isn't moving. If either cursor key is pressed then
-            // update the movement appropraitely
-            ship.setHorizontalMovement(0);
+        // resolve the movement of the ship. First assume the ship 
+        // isn't moving. If either cursor key is pressed then
+        // update the movement appropraitely
+        ship.setHorizontalMovement(0);
 
-            if ((leftPressed) && (!rightPressed)) {
-                ship.setHorizontalMovement(-moveSpeed);
-            } else if ((rightPressed) && (!leftPressed)) {
-                ship.setHorizontalMovement(moveSpeed);
-            }
-
-            // if we're pressing fire, attempt to fire
-            if (firePressed) {
-                tryToFire();
-            }
-
-			// finally pause for a bit. Note: this should run us at about
-            // 100 fps but on windows this might vary each loop due to
-            // a bad implementation of timer
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-            }
+        if ((leftPressed) && (!rightPressed)) {
+            ship.setHorizontalMovement(-moveSpeed);
+        } else if ((rightPressed) && (!leftPressed)) {
+            ship.setHorizontalMovement(moveSpeed);
+        }
+        
+        // if we're pressing fire, attempt to fire
+        if (firePressed) {
+            tryToFire();
         }
     }
 
