@@ -30,82 +30,107 @@ import javax.swing.JPanel;
  * @author Kevin Glass
  */
 public class Game extends Canvas {
-	/** The stragey that allows us to use accelerate page flipping */
+
+    /**
+     * The strategy that allows us to use accelerate page flipping
+     */
 	private BufferStrategy strategy;
-	/** True if the game is currently "running", i.e. the game loop is looping */
-	private boolean gameRunning = true;
-	/** The list of all the entities that exist in our game */
-	private ArrayList entities = new ArrayList();
-	/** The list of entities that need to be removed from the game this loop */
-	private ArrayList removeList = new ArrayList();
-	/** The entity representing the player */
+
+    /**
+     * True if the game is currently "running", i.e. the game loop is looping
+     */
+	private final boolean gameRunning = true;
+
+    /**
+     * The list of all the entities that exist in our game
+     */
+	private final ArrayList<Entity> entities = new ArrayList<>();
+
+    /**
+     * The list of entities that need to be removed from the game this loop
+     */
+	private final ArrayList removeList = new ArrayList();
+
+    /**
+     * The entity representing the player
+     */
 	private Entity ship;
-	/** The speed at which the player's ship should move (pixels/sec) */
-	private double moveSpeed = 300;
-	/** The time at which last fired a shot */
+
+    /**
+     * The speed at which the player's ship should move (pixels/sec)
+     */
+	private final double moveSpeed = 300;
+
+    /**
+     * The time at which last fired a shot
+     */
 	private long lastFire = 0;
-	/** The interval between our players shot (ms) */
-	private long firingInterval = 500;
-	/** The number of aliens left on the screen */
+	
+    /**
+     * The interval between our players shot (ms)
+     */
+	private final long firingInterval = 500;
+	/**
+     * The number of aliens left on the screen
+     */
 	private int alienCount;
 	
-	/** The message to display which waiting for a key press */
+	/**
+     * The message to display which waiting for a key press
+     */
 	private String message = "";
-	/** True if we're holding up game play until a key has been pressed */
+	/**
+     * True if we're holding up game play until a key has been pressed
+     */
 	private boolean waitingForKeyPress = true;
-	/** True if the left cursor key is currently pressed */
+
+    /**
+     * True if the left cursor key is currently pressed
+     */
 	private boolean leftPressed = false;
-	/** True if the right cursor key is currently pressed */
+    
+	/**
+     * True if the right cursor key is currently pressed
+     */
 	private boolean rightPressed = false;
-	/** True if we are firing */
+    
+	/**
+     * True if we are firing
+     */
 	private boolean firePressed = false;
-	/** True if game logic needs to be applied this loop, normally as a result of a game event */
+    
+	/**
+     * True if game logic needs to be applied this loop, normally as a
+     * result of a game event
+     */
 	private boolean logicRequiredThisLoop = false;
-	
+
+    /**
+     * Width and height of game canvas.
+     */
+    private final int gameWidth, gameHeight;
+    
 	/**
 	 * Construct our game and set it running.
+     * @param width
+     * @param height
 	 */
-	public Game() {
-		// create a frame to contain our game
-		JFrame container = new JFrame("Space Invaders 101");
-		
-		// get hold the content of the frame and set up the resolution of the game
-		JPanel panel = (JPanel) container.getContentPane();
-		panel.setPreferredSize(new Dimension(800,600));
-		panel.setLayout(null);
+	public Game(int width, int height) {
+
+        this.gameWidth = width;
+        this.gameHeight = height;
+
 		
 		// setup our canvas size and put it into the content of the frame
-		setBounds(0,0,800,600);
-		panel.add(this);
-		
+		setBounds(0,0,width,height);
+        
 		// Tell AWT not to bother repainting our canvas since we're
 		// going to do that our self in accelerated mode
 		setIgnoreRepaint(true);
-		
-		// finally make the window visible 
-		container.pack();
-		container.setResizable(false);
-		container.setVisible(true);
-		
-		// add a listener to respond to the user closing the window. If they
-		// do we'd like to exit the game
-		container.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
-				System.exit(0);
-			}
-		});
-		
-		// add a key input system (defined below) to our canvas
+
+        // add a key input system (defined below) to our canvas
 		// so we can respond to key pressed
 		addKeyListener(new KeyInputHandler());
-		
-		// request the focus so key events come to us
-		requestFocus();
-
-		// create the buffering strategy which will allow AWT
-		// to manage our accelerated graphics
-		createBufferStrategy(2);
-		strategy = getBufferStrategy();
 		
 		// initialise the entities in our game so there's something
 		// to see at startup
@@ -129,7 +154,7 @@ public class Game extends Canvas {
 	
 	/**
 	 * Initialise the starting state of the entities (ship and aliens). Each
-	 * entitiy will be added to the overall list of entities in the game.
+	 * entity will be added to the overall list of entities in the game.
 	 */
 	private void initEntities() {
 		// create the player ship and place it roughly in the center of the screen
@@ -194,16 +219,13 @@ public class Game extends Canvas {
 			notifyWin();
 		}
 		
-		// if there are still some aliens left then they all need to get faster, so
-		// speed up all the existing aliens
-		for (int i=0;i<entities.size();i++) {
-			Entity entity = (Entity) entities.get(i);
-			
-			if (entity instanceof AlienEntity) {
-				// speed up by 2%
-				entity.setHorizontalMovement(entity.getHorizontalMovement() * 1.02);
-			}
-		}
+        for (Entity entity : entities) {
+//            Entity entity = (Entity) entitie;
+            if (entity instanceof AlienEntity) {
+                // speed up by 2%
+                entity.setHorizontalMovement(entity.getHorizontalMovement() * 1.02);
+            }
+        }
 	}
 	
 	/**
@@ -235,6 +257,11 @@ public class Game extends Canvas {
 	 * <p>
 	 */
 	public void gameLoop() {
+        // create the buffering strategy which will allow AWT
+		// to manage our accelerated graphics
+		createBufferStrategy(2);
+		strategy = getBufferStrategy();
+        
 		long lastLoopTime = System.currentTimeMillis();
 		
 		// keep looping round til the game ends
@@ -249,23 +276,18 @@ public class Game extends Canvas {
 			// surface and blank it out
 			Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
 			g.setColor(Color.black);
-			g.fillRect(0,0,800,600);
+			g.fillRect(0,0,gameWidth,gameHeight);
 			
 			// cycle round asking each entity to move itself
 			if (!waitingForKeyPress) {
-				for (int i=0;i<entities.size();i++) {
-					Entity entity = (Entity) entities.get(i);
-					
-					entity.move(delta);
-				}
+                for (Entity entity : entities) {
+                    entity.move(delta);
+                }
 			}
 			
-			// cycle round drawing all the entities we have in the game
-			for (int i=0;i<entities.size();i++) {
-				Entity entity = (Entity) entities.get(i);
-				
-				entity.draw(g);
-			}
+            for (Entity entity : entities) {
+                entity.draw(g);
+            }
 			
 			// brute force collisions, compare every entity against
 			// every other entity. If any of them collide notify 
@@ -290,10 +312,9 @@ public class Game extends Canvas {
 			// be resolved, cycle round every entity requesting that
 			// their personal logic should be considered.
 			if (logicRequiredThisLoop) {
-				for (int i=0;i<entities.size();i++) {
-					Entity entity = (Entity) entities.get(i);
-					entity.doLogic();
-				}
+                for (Entity entity : entities) {
+                    entity.doLogic();
+                }
 				
 				logicRequiredThisLoop = false;
 			}
@@ -302,8 +323,12 @@ public class Game extends Canvas {
 			// current message 
 			if (waitingForKeyPress) {
 				g.setColor(Color.white);
-				g.drawString(message,(800-g.getFontMetrics().stringWidth(message))/2,250);
-				g.drawString("Press any key",(800-g.getFontMetrics().stringWidth("Press any key"))/2,300);
+				g.drawString(message,
+                        (gameWidth-g.getFontMetrics().stringWidth(message))/2,
+                        gameHeight/2 - 50);
+				g.drawString("Press any key",
+                        (gameWidth-g.getFontMetrics().stringWidth("Press any key"))/2,
+                        gameHeight/2);
 			}
 			
 			// finally, we've completed drawing so clear up the graphics
@@ -357,6 +382,7 @@ public class Game extends Canvas {
 		 *
 		 * @param e The details of the key that was pressed 
 		 */
+        @Override
 		public void keyPressed(KeyEvent e) {
 			// if we're waiting for an "any key" typed then we don't 
 			// want to do anything with just a "press"
@@ -381,6 +407,7 @@ public class Game extends Canvas {
 		 *
 		 * @param e The details of the key that was released 
 		 */
+        @Override
 		public void keyReleased(KeyEvent e) {
 			// if we're waiting for an "any key" typed then we don't 
 			// want to do anything with just a "released"
@@ -405,6 +432,7 @@ public class Game extends Canvas {
 		 *
 		 * @param e The details of the key that was typed. 
 		 */
+        @Override
 		public void keyTyped(KeyEvent e) {
 			// if we're waiting for a "any key" type then
 			// check if we've recieved any recently. We may
@@ -429,21 +457,5 @@ public class Game extends Canvas {
 				System.exit(0);
 			}
 		}
-	}
-	
-	/**
-	 * The entry point into the game. We'll simply create an
-	 * instance of class which will start the display and game
-	 * loop.
-	 * 
-	 * @param argv The arguments that are passed into our game
-	 */
-	public static void main(String argv[]) {
-		Game g =new Game();
-
-		// Start the main game loop, note: this method will not
-		// return until the game has finished running. Hence we are
-		// using the actual main thread to run the game.
-		g.gameLoop();
 	}
 }
