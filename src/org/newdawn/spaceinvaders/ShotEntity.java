@@ -9,7 +9,7 @@ public class ShotEntity extends Entity {
 	/** The vertical speed at which the players shot moves */
 	private double moveSpeed = -300;
 	/** The game in which this entity exists */
-	private Game game;
+	private GameCanvas game;
 	/** True if this shot has been "used", i.e. its hit something */
 	private boolean used = false;
 	
@@ -21,7 +21,7 @@ public class ShotEntity extends Entity {
 	 * @param x The initial x location of the shot
 	 * @param y The initial y location of the shot
 	 */
-	public ShotEntity(Game game,String sprite,int x,int y) {
+	public ShotEntity(GameCanvas game,String sprite,int x,int y) {
 		super(sprite,x,y);
 		
 		this.game = game;

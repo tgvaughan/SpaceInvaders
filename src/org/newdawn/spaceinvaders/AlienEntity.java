@@ -9,7 +9,7 @@ public class AlienEntity extends Entity {
 	/** The speed at which the alient moves horizontally */
 	private double moveSpeed = 75;
 	/** The game in which the entity exists */
-	private Game game;
+	private GameCanvas game;
 	
 	/**
 	 * Create a new alien entity
@@ -19,7 +19,7 @@ public class AlienEntity extends Entity {
 	 * @param x The intial x location of this alien
 	 * @param y The intial y location of this alient
 	 */
-	public AlienEntity(Game game,String ref,int x,int y) {
+	public AlienEntity(GameCanvas game,String ref,int x,int y) {
 		super(ref,x,y);
 		
 		this.game = game;

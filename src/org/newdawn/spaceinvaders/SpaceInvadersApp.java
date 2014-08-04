@@ -10,29 +10,21 @@ import javax.swing.JPanel;
  */
 public class SpaceInvadersApp extends JFrame {
     
-    private Game game;
+    private GameCanvas game;
 
     /**
      * Create new Space Invaders app.
      * @throws HeadlessException 
      */
     public SpaceInvadersApp() throws HeadlessException {
-        this.setTitle("Space Invaders");
-        this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setTitle("Space Invaders");
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setResizable(false);        
         
-		// get hold the content of the frame and set up the resolution of the game
-//		JPanel panel = (JPanel) this.getContentPane();
-//		panel.setPreferredSize(new Dimension(800, 600));
-//		panel.setLayout(null);
-        
-        setPreferredSize(new Dimension(800, 600));
+        game = new GameCanvas(800, 600);
+        add(game);
         
         pack();
-        setResizable(false);
-        
-        game = new Game(800, 600);
-        //panel.add(game);
-        add(game);
     }
 
     /**
@@ -49,10 +41,10 @@ public class SpaceInvadersApp extends JFrame {
      */
     public static void main(String[] args) {
         
-        SpaceInvadersApp app = new SpaceInvadersApp();
+        SpaceInvadersApp spaceInvaders = new SpaceInvadersApp();
 
-        app.setVisible(true);
-        app.start();
+        spaceInvaders.setVisible(true);
+        spaceInvaders.start();
         
     }
     

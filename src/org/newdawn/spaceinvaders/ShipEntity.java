@@ -7,7 +7,7 @@ package org.newdawn.spaceinvaders;
  */
 public class ShipEntity extends Entity {
 	/** The game in which the ship exists */
-	private Game game;
+	private GameCanvas game;
 	
 	/**
 	 * Create a new entity to represent the players ship
@@ -17,7 +17,7 @@ public class ShipEntity extends Entity {
 	 * @param x The initial x location of the player's ship
 	 * @param y The initial y location of the player's ship
 	 */
-	public ShipEntity(Game game,String ref,int x,int y) {
+	public ShipEntity(GameCanvas game,String ref,int x,int y) {
 		super(ref,x,y);
 		
 		this.game = game;
