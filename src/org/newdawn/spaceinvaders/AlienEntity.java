@@ -39,7 +39,7 @@ public class AlienEntity extends Entity {
 		}
 		// and vice vesa, if we have reached the right hand side of 
 		// the screen and are moving right, request a logic update
-		if ((dx > 0) && (x > 750)) {
+		if ((dx > 0) && (x > game.getWidth()-50)) {
 			game.updateLogic();
 		}
 		
@@ -50,6 +50,7 @@ public class AlienEntity extends Entity {
 	/**
 	 * Update the game logic related to aliens
 	 */
+    @Override
 	public void doLogic() {
 		// swap over horizontal movement and move down the
 		// screen a bit
@@ -58,8 +59,8 @@ public class AlienEntity extends Entity {
 		
 		// if we've reached the bottom of the screen then the player
 		// dies
-		if (y > 570) {
-			game.notifyDeath();
+		if (y > game.getHeight()-30) {
+			game.notifyHumansDead();
 		}
 	}
 	
@@ -68,6 +69,7 @@ public class AlienEntity extends Entity {
 	 * 
 	 * @param other The other entity
 	 */
+    @Override
 	public void collidedWith(Entity other) {
 		// collisions with aliens are handled elsewhere
 	}

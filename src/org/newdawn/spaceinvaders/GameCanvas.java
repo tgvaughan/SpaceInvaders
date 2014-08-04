@@ -73,15 +73,12 @@ public class GameCanvas extends Canvas {
      * The number of aliens left on the screen
      */
     private int alienCount;
-
+    
     /**
-     * The message to display which waiting for a key press
+     * Set to true if an alien reaches the bottom of the screen or
+     * collides with the player's ship.
      */
-    private String message = "";
-    /**
-     * True if we're holding up game play until a key has been pressed
-     */
-    private boolean waitingForKeyPress = true;
+    private boolean humansDead;
 
     /**
      * True if the left cursor key is currently pressed
@@ -103,26 +100,15 @@ public class GameCanvas extends Canvas {
      * a game event
      */
     private boolean logicRequiredThisLoop = false;
-
-    /**
-     * Width and height of game canvas.
-     */
-    private final int gameWidth, gameHeight;
-
+    
     /**
      * Construct our game and set it running.
-     *
-     * @param width
-     * @param height
      */
-    public GameCanvas(int width, int height) {
-
-        this.gameWidth = width;
-        this.gameHeight = height;
+    public GameCanvas() {
 
         // setup our canvas size and put it into the content of the frame
-        setBounds(0, 0, width, height);
-
+        setBounds(0, 0, 800, 600);
+        
 		// Tell AWT not to bother repainting our canvas since we're
         // going to do that our self in accelerated mode
         setIgnoreRepaint(true);
@@ -135,6 +121,7 @@ public class GameCanvas extends Canvas {
         // to see at startup
         initEntities();
     }
+    
 
     /**
      * Start a fresh game, this should clear out any old data and create a new
@@ -162,13 +149,16 @@ public class GameCanvas extends Canvas {
 
         // create a block of aliens (5 rows, by 12 aliens, spaced evenly)
         alienCount = 0;
-        for (int row = 0; row < 5; row++) {
+        for (int row = 0; row < 1; row++) {
             for (int x = 0; x < 12; x++) {
                 Entity alien = new AlienEntity(this, "sprites/alien.gif", 100 + (x * 50), (50) + row * 30);
                 entities.add(alien);
                 alienCount++;
             }
         }
+        
+        // Initialise gameLosingFlag
+        humansDead = false;
     }
 
     /**
@@ -190,22 +180,6 @@ public class GameCanvas extends Canvas {
     }
 
     /**
-     * Notification that the player has died.
-     */
-    public void notifyDeath() {
-        message = "Oh no! They got you, try again?";
-        waitingForKeyPress = true;
-    }
-
-    /**
-     * Notification that the player has won since all the aliens are dead.
-     */
-    public void notifyWin() {
-        message = "Well done! You Win!";
-        waitingForKeyPress = true;
-    }
-
-    /**
      * Notification that an alien has been killed
      */
     public void notifyAlienKilled() {
@@ -213,16 +187,22 @@ public class GameCanvas extends Canvas {
         alienCount--;
 
         if (alienCount == 0) {
-            notifyWin();
+            return;
         }
 
         for (Entity entity : entities) {
-//            Entity entity = (Entity) entitie;
             if (entity instanceof AlienEntity) {
                 // speed up by 2%
                 entity.setHorizontalMovement(entity.getHorizontalMovement() * 1.02);
             }
         }
+    }
+    
+    /**
+     * Notification that an alien has landed
+     */
+    public void notifyHumansDead() {
+        humansDead = true;
     }
 
     /**
@@ -240,6 +220,20 @@ public class GameCanvas extends Canvas {
         lastFire = System.currentTimeMillis();
         ShotEntity shot = new ShotEntity(this, "sprites/shot.gif", ship.getX() + 10, ship.getY() - 30);
         entities.add(shot);
+    }
+    
+    /**
+     * Returns true if game over condition is met.  In this case the condition
+     * is that all invading aliens are deceased.
+     * 
+     * @return true if condition is met.
+     */
+    public boolean gameOverConditionMet() {
+        return alienCount == 0 || humansDead;
+    }
+    
+    public boolean gameWon() {
+        return !humansDead;
     }
 
     /**
@@ -271,14 +265,14 @@ public class GameCanvas extends Canvas {
             // surface and blank it out
             Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
             g.setColor(Color.black);
-            g.fillRect(0, 0, gameWidth, gameHeight);
+            g.fillRect(0, 0, 800, 600);
 
             // cycle round asking each entity to move itself
-            if (!waitingForKeyPress) {
+//            if (!waitingForKeyPress) {
                 for (Entity entity : entities) {
                     entity.move(delta);
                 }
-            }
+//            }
 
             for (Entity entity : entities) {
                 entity.draw(g);
@@ -314,22 +308,13 @@ public class GameCanvas extends Canvas {
                 logicRequiredThisLoop = false;
             }
 
-			// if we're waiting for an "any key" press then draw the 
-            // current message 
-            if (waitingForKeyPress) {
-                g.setColor(Color.white);
-                g.drawString(message,
-                        (gameWidth - g.getFontMetrics().stringWidth(message)) / 2,
-                        gameHeight / 2 - 50);
-                g.drawString("Press any key",
-                        (gameWidth - g.getFontMetrics().stringWidth("Press any key")) / 2,
-                        gameHeight / 2);
-            }
-
 			// finally, we've completed drawing so clear up the graphics
             // and flip the buffer over
             g.dispose();
             strategy.show();
+            
+            if (gameOverConditionMet())
+                return;
 
 			// resolve the movement of the ship. First assume the ship 
             // isn't moving. If either cursor key is pressed then
@@ -371,12 +356,6 @@ public class GameCanvas extends Canvas {
     private class KeyInputHandler extends KeyAdapter {
 
         /**
-         * The number of key presses we've had while waiting for an "any key"
-         * press
-         */
-        private int pressCount = 1;
-
-        /**
          * Notification from AWT that a key has been pressed. Note that a key
          * being pressed is equal to being pushed down but *NOT* released. Thats
          * where keyTyped() comes in.
@@ -387,9 +366,6 @@ public class GameCanvas extends Canvas {
         public void keyPressed(KeyEvent e) {
 			// if we're waiting for an "any key" typed then we don't 
             // want to do anything with just a "press"
-            if (waitingForKeyPress) {
-                return;
-            }
 
             if (e.getKeyCode() == KeyEvent.VK_LEFT) {
                 leftPressed = true;
@@ -411,9 +387,6 @@ public class GameCanvas extends Canvas {
         public void keyReleased(KeyEvent e) {
 			// if we're waiting for an "any key" typed then we don't 
             // want to do anything with just a "released"
-            if (waitingForKeyPress) {
-                return;
-            }
 
             if (e.getKeyCode() == KeyEvent.VK_LEFT) {
                 leftPressed = false;
@@ -434,24 +407,6 @@ public class GameCanvas extends Canvas {
          */
         @Override
         public void keyTyped(KeyEvent e) {
-			// if we're waiting for a "any key" type then
-            // check if we've recieved any recently. We may
-            // have had a keyType() event from the user releasing
-            // the shoot or move keys, hence the use of the "pressCount"
-            // counter.
-            if (waitingForKeyPress) {
-                if (pressCount == 1) {
-					// since we've now recieved our key typed
-                    // event we can mark it as such and start 
-                    // our new game
-                    waitingForKeyPress = false;
-                    startGame();
-                    pressCount = 0;
-                } else {
-                    pressCount++;
-                }
-            }
-
             // if we hit escape, then quit the game
             if (e.getKeyChar() == 27) {
                 System.exit(0);

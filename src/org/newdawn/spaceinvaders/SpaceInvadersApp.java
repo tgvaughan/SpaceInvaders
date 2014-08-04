@@ -1,16 +1,14 @@
 package org.newdawn.spaceinvaders;
 
-import java.awt.Dimension;
 import java.awt.HeadlessException;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 /**
  * @author Tim Vaughan <tgvaughan@gmail.com>
  */
 public class SpaceInvadersApp extends JFrame {
     
-    private GameCanvas game;
+    private final GameCanvas game;
 
     /**
      * Create new Space Invaders app.
@@ -18,13 +16,14 @@ public class SpaceInvadersApp extends JFrame {
      */
     public SpaceInvadersApp() throws HeadlessException {
         setTitle("Space Invaders");
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setResizable(false);        
-        
-        game = new GameCanvas(800, 600);
+
+        game = new GameCanvas();
         add(game);
         
         pack();
+        setResizable(false);
+        
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
     /**
@@ -45,6 +44,7 @@ public class SpaceInvadersApp extends JFrame {
 
         spaceInvaders.setVisible(true);
         spaceInvaders.start();
+        System.exit(0);
         
     }
     
