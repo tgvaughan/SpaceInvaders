@@ -17,7 +17,7 @@ import javax.swing.KeyStroke;
  */
 public class SpaceInvadersApp extends JFrame {
     
-    private final GameCanvas game;
+    private final GamePanel game;
 
     /**
      * Create new Space Invaders application.
@@ -48,7 +48,7 @@ public class SpaceInvadersApp extends JFrame {
         menuItemGamePause.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                game.gameStop();
+                game.gamePause();
             }
         });
         menuGame.add(menuItemGamePause);
@@ -78,14 +78,14 @@ public class SpaceInvadersApp extends JFrame {
         setJMenuBar(menuBar);
         
         // Set up game canvas:
-        game = new GameCanvas();
+        game = new GamePanel();
         add(game);
         
         // Cause outer components to adjust to the the size of the canvas:
         pack();
         
         // Initialise canvas buffer - must be done following pack.
-        game.initBuffer();
+        //game.initBuffer();
         
         // Our game canvas has a fixed size - don't let user's change
         // the window size:
@@ -109,11 +109,7 @@ public class SpaceInvadersApp extends JFrame {
      */
     public static void main(String[] args) {
         
-        SpaceInvadersApp spaceInvaders = new SpaceInvadersApp();
-
-        spaceInvaders.setVisible(true);
-//        spaceInvaders.start();
-//        System.exit(0);
+        (new SpaceInvadersApp()).setVisible(true);
         
     }
     

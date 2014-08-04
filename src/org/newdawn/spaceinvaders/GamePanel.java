@@ -3,6 +3,7 @@ package org.newdawn.spaceinvaders;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -31,12 +32,12 @@ import javax.swing.Timer;
  *
  * @author Kevin Glass
  */
-public class GameCanvas extends Canvas {
+public class GamePanel extends JPanel {
 
     /**
      * The strategy that allows us to use accelerate page flipping
      */
-    private BufferStrategy strategy;
+    //private BufferStrategy strategy;
 
     /**
      * True if the game is currently "running", i.e. the game loop is looping
@@ -112,7 +113,7 @@ public class GameCanvas extends Canvas {
     /**
      * Construct our game and set it running.
      */
-    public GameCanvas() {
+    public GamePanel() {
 
         // setup our canvas size and put it into the content of the frame
         setBounds(0, 0, 800, 600);
@@ -138,21 +139,27 @@ public class GameCanvas extends Canvas {
         });
         
     }
-    
 
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        
+        Graphics2D g2d = (Graphics2D) g;
+        g.setColor(Color.black);
+        g.fillRect(0, 0, 800, 600);
+
+        for (Entity entity : entities) {
+            entity.draw(g);
+        }
+    }
+    
+    
     /**
      * Start a fresh game, this should clear out any old data and create a new
      * set.
      */
     private void startGame() {
-        // clear out any existing entities and intialise a new set
-        entities.clear();
-        initEntities();
 
-        // blank out any keyboard settings we might currently have
-        leftPressed = false;
-        rightPressed = false;
-        firePressed = false;
     }
 
     /**
@@ -257,23 +264,35 @@ public class GameCanvas extends Canvas {
      * Create the buffering strategy which will allow AWT 
      * to manage our accelerated graphics.
      */
-    public void initBuffer() {
-        createBufferStrategy(2);
-        strategy = getBufferStrategy();
-    }
+//    public void initBuffer() {
+//        createBufferStrategy(2);
+//        strategy = getBufferStrategy();
+//    }
     
     /**
      * Start the game.
      */
     public void gameStart() {
+        // clear out any existing entities and intialise a new set
+        entities.clear();
+        initEntities();
+
+        // blank out any keyboard settings we might currently have
+        leftPressed = false;
+        rightPressed = false;
+        firePressed = false;
+        
         timer.start();
     }
     
     /**
      * Stop/pause the game.
      */
-    public void gameStop() {
-        timer.stop();
+    public void gamePause() {
+        if (timer.isRunning())
+            timer.stop();
+        else
+            timer.start();
     }
     
     /**
@@ -291,18 +310,18 @@ public class GameCanvas extends Canvas {
 
         // Get hold of a graphics context for the accelerated 
         // surface and blank it out
-        Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
-        g.setColor(Color.black);
-        g.fillRect(0, 0, 800, 600);
+//        Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+//        g.setColor(Color.black);
+//        g.fillRect(0, 0, 800, 600);
 
         // cycle round asking each entity to move itself
         for (Entity entity : entities) {
             entity.move(delta);
         }
-
-        for (Entity entity : entities) {
-            entity.draw(g);
-        }
+//
+//        for (Entity entity : entities) {
+//            entity.draw(g);
+//        }
 
         // brute force collisions, compare every entity against
         // every other entity. If any of them collide notify 
@@ -336,8 +355,9 @@ public class GameCanvas extends Canvas {
         
         // finally, we've completed drawing so clear up the graphics
         // and flip the buffer over
-        g.dispose();
-        strategy.show();
+//        g.dispose();
+//        strategy.show();
+        repaint();
         
         if (gameOverConditionMet())
             return;
@@ -415,19 +435,5 @@ public class GameCanvas extends Canvas {
                 firePressed = false;
             }
         }
-
-        /**
-         * Notification from AWT that a key has been typed. Note that typing a
-         * key means to both press and then release it.
-         *
-         * @param e The details of the key that was typed.
-         */
-//        @Override
-//        public void keyTyped(KeyEvent e) {
-//            // if we hit escape, then quit the game
-//            if (e.getKeyChar() == 27) {
-//                System.exit(0);
-//            }
-//        }
     }
 }

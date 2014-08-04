@@ -7,7 +7,7 @@ package org.newdawn.spaceinvaders;
  */
 public class ShipEntity extends Entity {
 	/** The game in which the ship exists */
-	private GameCanvas game;
+	private final GamePanel game;
 	
 	/**
 	 * Create a new entity to represent the players ship
@@ -17,7 +17,7 @@ public class ShipEntity extends Entity {
 	 * @param x The initial x location of the player's ship
 	 * @param y The initial y location of the player's ship
 	 */
-	public ShipEntity(GameCanvas game,String ref,int x,int y) {
+	public ShipEntity(GamePanel game,String ref,int x,int y) {
 		super(ref,x,y);
 		
 		this.game = game;
@@ -29,6 +29,7 @@ public class ShipEntity extends Entity {
 	 * 
 	 * @param delta The time that has elapsed since last move (ms)
 	 */
+    @Override
 	public void move(long delta) {
 		// if we're moving left and have reached the left hand side
 		// of the screen, don't move
@@ -37,7 +38,7 @@ public class ShipEntity extends Entity {
 		}
 		// if we're moving right and have reached the right hand side
 		// of the screen, don't move
-		if ((dx > 0) && (x > game.getWidth()-50)) {
+		if ((dx > 0) && (x > 750)) {
 			return;
 		}
 		

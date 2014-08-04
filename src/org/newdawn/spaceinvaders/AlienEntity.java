@@ -9,7 +9,7 @@ public class AlienEntity extends Entity {
 	/** The speed at which the alient moves horizontally */
 	private double moveSpeed = 75;
 	/** The game in which the entity exists */
-	private GameCanvas game;
+	private GamePanel game;
 	
 	/**
 	 * Create a new alien entity
@@ -19,7 +19,7 @@ public class AlienEntity extends Entity {
 	 * @param x The intial x location of this alien
 	 * @param y The intial y location of this alient
 	 */
-	public AlienEntity(GameCanvas game,String ref,int x,int y) {
+	public AlienEntity(GamePanel game,String ref,int x,int y) {
 		super(ref,x,y);
 		
 		this.game = game;
@@ -39,7 +39,7 @@ public class AlienEntity extends Entity {
 		}
 		// and vice vesa, if we have reached the right hand side of 
 		// the screen and are moving right, request a logic update
-		if ((dx > 0) && (x > game.getWidth()-50)) {
+		if ((dx > 0) && (x > 750)) {
 			game.updateLogic();
 		}
 		

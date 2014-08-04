@@ -7,9 +7,9 @@ package org.newdawn.spaceinvaders;
  */
 public class ShotEntity extends Entity {
 	/** The vertical speed at which the players shot moves */
-	private double moveSpeed = -300;
+	private final double moveSpeed = -300;
 	/** The game in which this entity exists */
-	private GameCanvas game;
+	private final GamePanel game;
 	/** True if this shot has been "used", i.e. its hit something */
 	private boolean used = false;
 	
@@ -21,7 +21,7 @@ public class ShotEntity extends Entity {
 	 * @param x The initial x location of the shot
 	 * @param y The initial y location of the shot
 	 */
-	public ShotEntity(GameCanvas game,String sprite,int x,int y) {
+	public ShotEntity(GamePanel game,String sprite,int x,int y) {
 		super(sprite,x,y);
 		
 		this.game = game;
@@ -34,6 +34,7 @@ public class ShotEntity extends Entity {
 	 * 
 	 * @param delta The time that has elapsed since last move
 	 */
+    @Override
 	public void move(long delta) {
 		// proceed with normal move
 		super.move(delta);
@@ -50,6 +51,7 @@ public class ShotEntity extends Entity {
 	 * 
 	 * @parma other The other entity with which we've collided
 	 */
+    @Override
 	public void collidedWith(Entity other) {
 		// prevents double kills, if we've already hit something,
 		// don't collide
