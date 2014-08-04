@@ -405,12 +405,12 @@ public class GameCanvas extends Canvas {
          *
          * @param e The details of the key that was typed.
          */
-        @Override
-        public void keyTyped(KeyEvent e) {
-            // if we hit escape, then quit the game
-            if (e.getKeyChar() == 27) {
-                System.exit(0);
-            }
-        }
+//        @Override
+//        public void keyTyped(KeyEvent e) {
+//            // if we hit escape, then quit the game
+//            if (e.getKeyChar() == 27) {
+//                System.exit(0);
+//            }
+//        }
     }
 }
