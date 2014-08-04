@@ -237,6 +237,15 @@ public class GameCanvas extends Canvas {
     }
 
     /**
+     * Create the buffering strategy which will allow AWT 
+     * to manage our accelerated graphics. Must be called before gameLoop().
+     */
+    public void initBuffer() {
+        createBufferStrategy(2);
+        strategy = getBufferStrategy();
+    }
+    
+    /**
      * The main game loop. This loop is running during all game play as is
      * responsible for the following activities:
      * <p>
@@ -246,10 +255,6 @@ public class GameCanvas extends Canvas {
      * <p>
      */
     public void gameLoop() {
-        // create the buffering strategy which will allow AWT
-        // to manage our accelerated graphics
-        createBufferStrategy(2);
-        strategy = getBufferStrategy();
 
         long lastLoopTime = System.currentTimeMillis();
 
@@ -268,11 +273,9 @@ public class GameCanvas extends Canvas {
             g.fillRect(0, 0, 800, 600);
 
             // cycle round asking each entity to move itself
-//            if (!waitingForKeyPress) {
-                for (Entity entity : entities) {
+            for (Entity entity : entities) {
                     entity.move(delta);
-                }
-//            }
+            }
 
             for (Entity entity : entities) {
                 entity.draw(g);
@@ -337,7 +340,7 @@ public class GameCanvas extends Canvas {
             // a bad implementation of timer
             try {
                 Thread.sleep(10);
-            } catch (Exception e) {
+            } catch (InterruptedException e) {
             }
         }
     }

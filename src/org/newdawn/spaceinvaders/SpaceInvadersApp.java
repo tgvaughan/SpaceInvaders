@@ -2,6 +2,7 @@ package org.newdawn.spaceinvaders;
 
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -25,6 +26,8 @@ public class SpaceInvadersApp extends JFrame {
     public SpaceInvadersApp() throws HeadlessException {
         setTitle("Space Invaders");
 
+        // Set up menu hierarchy:
+        
         JMenuBar menuBar = new JMenuBar();
         
         JMenu menuGame = new JMenu("Game");
@@ -32,6 +35,12 @@ public class SpaceInvadersApp extends JFrame {
         
         JMenuItem menuItemGameNew = new JMenuItem("New", KeyEvent.VK_N);
         menuItemGameNew.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK));
+        menuItemGameNew.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                start();
+            }
+        });
         menuGame.add(menuItemGameNew);
         
         JMenuItem menuItemGamePause = new JMenuItem("Pause", KeyEvent.VK_P);
@@ -42,6 +51,12 @@ public class SpaceInvadersApp extends JFrame {
         
         JMenuItem menuItemGameExit = new JMenuItem("Exit", KeyEvent.VK_X);
         menuItemGameExit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.CTRL_MASK));
+        menuItemGameExit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
         menuGame.add(menuItemGameExit);
         
         menuBar.add(menuGame);
@@ -56,12 +71,20 @@ public class SpaceInvadersApp extends JFrame {
         
         setJMenuBar(menuBar);
         
+        // Set up game canvas:
         game = new GameCanvas();
         add(game);
         
+        // Cause outer components to adjust to the the size of the canvas:
         pack();
+        
+        game.initBuffer();
+        
+        // Our game canvas has a fixed size - don't let user's change
+        // the window size:
         setResizable(false);
         
+        // Define what happens when a user closes the game window:
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
@@ -69,7 +92,7 @@ public class SpaceInvadersApp extends JFrame {
      * Start the game loop.
      */
     public void start() {
-        game.requestFocus();
+        //game.requestFocus();
         game.gameLoop();
     }
     
@@ -82,8 +105,8 @@ public class SpaceInvadersApp extends JFrame {
         SpaceInvadersApp spaceInvaders = new SpaceInvadersApp();
 
         spaceInvaders.setVisible(true);
-        spaceInvaders.start();
-        System.exit(0);
+//        spaceInvaders.start();
+//        System.exit(0);
         
     }
     
