@@ -1,6 +1,5 @@
 package org.newdawn.spaceinvaders;
 
-import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -9,12 +8,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -115,12 +110,10 @@ public class GamePanel extends JPanel {
      */
     public GamePanel() {
 
+        setPreferredSize(new Dimension(800, 600));
+        setSize(new Dimension(800, 600));
         // setup our canvas size and put it into the content of the frame
         setBounds(0, 0, 800, 600);
-        
-		// Tell AWT not to bother repainting our canvas since we're
-        // going to do that our self in accelerated mode
-        setIgnoreRepaint(true);
 
         // add a key input system (defined below) to our canvas
         // so we can respond to key pressed
@@ -130,11 +123,11 @@ public class GamePanel extends JPanel {
         // to see at startup
         initEntities();
         
-        // Set up game timer.
-        timer = new Timer(10, new ActionListener() {
+        // Set up timer that calls the game iteration method.
+        timer = new Timer(100, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                gameIterate();
+                gameIterate(100);
             }
         });
         
@@ -153,14 +146,6 @@ public class GamePanel extends JPanel {
         }
     }
     
-    
-    /**
-     * Start a fresh game, this should clear out any old data and create a new
-     * set.
-     */
-    private void startGame() {
-
-    }
 
     /**
      * Initialise the starting state of the entities (ship and aliens). Each
@@ -270,9 +255,9 @@ public class GamePanel extends JPanel {
 //    }
     
     /**
-     * Start the game.
+     * Start a fresh game.
      */
-    public void gameStart() {
+    public void startGame() {
         // clear out any existing entities and intialise a new set
         entities.clear();
         initEntities();
@@ -288,7 +273,7 @@ public class GamePanel extends JPanel {
     /**
      * Stop/pause the game.
      */
-    public void gamePause() {
+    public void pauseGame() {
         if (timer.isRunning())
             timer.stop();
         else
@@ -296,32 +281,21 @@ public class GamePanel extends JPanel {
     }
     
     /**
-     * The main game loop. This loop is running during all game play as is
-     * responsible for the following activities:
+     * Iterate game state.  This method is responsible for:
      * <p>
-     * - Working out the speed of the game loop to update moves - Moving the
-     * game entities - Drawing the screen contents (entities, text) - Updating
-     * game events - Checking Input
+     * - Moving the game entities
+     * - Drawing the screen contents (entities, text)
+     * - Updating game events
+     * - Checking game Input
      * <p>
+     * @param delta Number of milliseconds to increment state by.
      */
-    public void gameIterate() {
-
-        long delta = 10;
-
-        // Get hold of a graphics context for the accelerated 
-        // surface and blank it out
-//        Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
-//        g.setColor(Color.black);
-//        g.fillRect(0, 0, 800, 600);
+    public void gameIterate(long delta) {
 
         // cycle round asking each entity to move itself
         for (Entity entity : entities) {
             entity.move(delta);
         }
-//
-//        for (Entity entity : entities) {
-//            entity.draw(g);
-//        }
 
         // brute force collisions, compare every entity against
         // every other entity. If any of them collide notify 
@@ -353,10 +327,7 @@ public class GamePanel extends JPanel {
             logicRequiredThisLoop = false;
         }
         
-        // finally, we've completed drawing so clear up the graphics
-        // and flip the buffer over
-//        g.dispose();
-//        strategy.show();
+        // Force component to repaint itself following entity movement.
         repaint();
         
         if (gameOverConditionMet())
@@ -384,9 +355,9 @@ public class GamePanel extends JPanel {
      * dynamic input during game play, i.e. left/right and shoot, and more
      * static type input (i.e. press any key to continue)
      *
-     * This has been implemented as an inner class more through habbit then
-     * anything else. Its perfectly normal to implement this as seperate class
-     * if slight less convienient.
+     * This has been implemented as an inner class more through habit than
+     * anything else. Its perfectly normal to implement this as separate class
+     * if slight less convenient.
      *
      * @author Kevin Glass
      */
