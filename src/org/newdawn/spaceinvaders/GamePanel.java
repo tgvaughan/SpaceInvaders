@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import javax.swing.JOptionPane;
 
 import javax.swing.JPanel;
 import javax.swing.Timer;
@@ -28,17 +29,7 @@ import javax.swing.Timer;
  * @author Kevin Glass
  */
 public class GamePanel extends JPanel {
-
-    /**
-     * The strategy that allows us to use accelerate page flipping
-     */
-    //private BufferStrategy strategy;
-
-    /**
-     * True if the game is currently "running", i.e. the game loop is looping
-     */
-    private final boolean gameRunning = true;
-
+    
     /**
      * The list of all the entities that exist in our game
      */
@@ -133,11 +124,14 @@ public class GamePanel extends JPanel {
         
     }
 
+    /**
+     * Paint the panel.  Called whenever the panel needs to be redrawn.
+     * @param g 
+     */
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         
-        Graphics2D g2d = (Graphics2D) g;
         g.setColor(Color.black);
         g.fillRect(0, 0, 800, 600);
 
@@ -152,6 +146,9 @@ public class GamePanel extends JPanel {
      * entity will be added to the overall list of entities in the game.
      */
     private void initEntities() {
+        // clear out any existing entities and intialise a new set
+        entities.clear();
+        
         // create the player ship and place it roughly in the center of the screen
         ship = new ShipEntity(this, "sprites/ship.gif", 370, 550);
         entities.add(ship);
@@ -232,34 +229,9 @@ public class GamePanel extends JPanel {
     }
     
     /**
-     * Returns true if game over condition is met.  In this case the condition
-     * is that all invading aliens are deceased.
-     * 
-     * @return true if condition is met.
-     */
-    public boolean gameOverConditionMet() {
-        return alienCount == 0 || humansDead;
-    }
-    
-    public boolean gameWon() {
-        return !humansDead;
-    }
-
-    /**
-     * Create the buffering strategy which will allow AWT 
-     * to manage our accelerated graphics.
-     */
-//    public void initBuffer() {
-//        createBufferStrategy(2);
-//        strategy = getBufferStrategy();
-//    }
-    
-    /**
      * Start a fresh game.
      */
     public void startGame() {
-        // clear out any existing entities and intialise a new set
-        entities.clear();
         initEntities();
 
         // blank out any keyboard settings we might currently have
@@ -278,6 +250,41 @@ public class GamePanel extends JPanel {
             timer.stop();
         else
             timer.start();
+    }
+    
+        
+    /**
+     * Returns true if game over condition is met.  In this case the condition
+     * is that all invading aliens are deceased.
+     * 
+     * @return true if condition is met.
+     */
+    private boolean isGameOverConditionMet() {
+        return alienCount == 0 || humansDead;
+    }
+    
+    private boolean isGameWon() {
+        return !humansDead;
+    }
+    
+    /**
+     * Display wining/loosing message then reset game.
+     */
+    private void gameFinished() {
+        timer.stop();
+        
+        String message;
+        if (isGameWon()) {
+            message = "You defeated the alien menace!  Congratulations!";
+        } else {
+            message = "Oh no! The aliens have defeated you.";
+        }
+        
+        JOptionPane.showMessageDialog(this,
+                message, "Game Over",
+                JOptionPane.INFORMATION_MESSAGE);
+
+        initEntities();
     }
     
     /**
@@ -330,8 +337,10 @@ public class GamePanel extends JPanel {
         // Force component to repaint itself following entity movement.
         repaint();
         
-        if (gameOverConditionMet())
+        if (isGameOverConditionMet()) {
+            gameFinished();
             return;
+        }
 
         // resolve the movement of the ship. First assume the ship 
         // isn't moving. If either cursor key is pressed then

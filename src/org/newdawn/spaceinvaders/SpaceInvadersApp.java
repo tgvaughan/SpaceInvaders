@@ -91,7 +91,7 @@ public class SpaceInvadersApp extends JFrame {
                 JOptionPane.showMessageDialog(rootPane,
                         "Space Invaders game originally due to Kevin Glass.\n"
                                 + "(See http://www.cokeandcode.com/info/tut2d.html.)\n\n"
-                                + "Mercilessly adapted for CompSci230 assignment\n"
+                                + "Mercilessly adapted for CompSci230 assignment 2\n"
                                 + "by Tim Vaughan.",
                         "About Space Invaders",
                         JOptionPane.INFORMATION_MESSAGE,
