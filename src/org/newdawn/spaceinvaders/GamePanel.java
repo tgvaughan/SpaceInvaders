@@ -102,9 +102,26 @@ public class GamePanel extends JPanel {
     private final Timer timer;
     
     /**
-     * Construct our game and set it running.
+     * Keeps track of score, which is defined as the number of game
+     * iterations required to kill all of the aliens.
      */
-    public GamePanel() {
+    private int iterations;
+    
+    /**
+     * Fonts used on game panel.
+     */
+    private final Font titleFont1, titleFont2, bigFont, scoreFont;
+    
+    /**
+     * App this panel belongs to.
+     */
+    private final SpaceInvadersApp app;
+    
+    /**
+     * Construct our game and set it running.
+     * @param app App this panel belongs to.
+     */
+    public GamePanel(SpaceInvadersApp app) {
 
         // Set preferred size of panel.
         setPreferredSize(new Dimension(800, 600));
@@ -128,6 +145,14 @@ public class GamePanel extends JPanel {
             }
         });
         
+        // Set up fonts:
+        titleFont1 = new Font(Font.SANS_SERIF, Font.BOLD, 40);
+        titleFont2 = new Font(Font.SANS_SERIF, Font.PLAIN, 40);
+        bigFont = new Font(Font.SANS_SERIF, Font.BOLD, 100);
+        scoreFont = new Font(Font.SANS_SERIF, Font.PLAIN, 20);
+        
+        // Record app object:
+        this.app = app;
     }
 
     /**
@@ -149,24 +174,28 @@ public class GamePanel extends JPanel {
         
         if (gameInProgress) {
             if (!timer.isRunning()) {
-                g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 100));
+                g.setFont(bigFont);
                 g.setColor(Color.white);
                 g.drawString("PAUSED", 200, 300);
             }
         } else {
             if (isGameOverConditionMet()) {
-                g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 100));
+                g.setFont(bigFont);
                 g.setColor(Color.yellow);
-                g.drawString("GAME OVER", 200, 300);
+                g.drawString("GAME OVER", 50, 300);
             } else {
-                g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 40));
+                g.setFont(titleFont1);
                 g.setColor(Color.yellow);
                 g.drawString("SPACE INVADERS", 200, 250);
-                g.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 40));
+                g.setFont(titleFont2);
                 g.setColor(Color.white);
                 g.drawString("Use Ctrl-N to begin new game.", 80, 350);
             }
-        } 
+        }
+        
+        g.setFont(scoreFont);
+        g.setColor(Color.white);
+        g.drawString("Score: " + getScore(), 600, 20);
     }
     
 
@@ -270,6 +299,10 @@ public class GamePanel extends JPanel {
         gameInProgress = true;
         humansDead = false;
         
+        // Reset score
+        iterations = 0;
+        
+        // Start timer that iterates the game state
         timer.start();
     }
     
@@ -284,22 +317,7 @@ public class GamePanel extends JPanel {
         } else
             timer.start();
     }
-    
         
-    /**
-     * Returns true if game over condition is met.  In this case the condition
-     * is that all invading aliens are deceased.
-     * 
-     * @return true if condition is met.
-     */
-    private boolean isGameOverConditionMet() {
-        return alienCount == 0 || humansDead;
-    }
-    
-    private boolean isGameWon() {
-        return !humansDead;
-    }
-    
     /**
      * Display wining/loosing message then reset game.
      */
@@ -307,19 +325,32 @@ public class GamePanel extends JPanel {
         timer.stop();
         gameInProgress = false;
         
-        String message;
-        if (isGameWon()) {
-            message = "You defeated the alien menace!  Congratulations!";
-        } else {
-            message = "Oh no! The aliens have defeated you.";
-        }
-        
-        JOptionPane.showMessageDialog(this,
-                message, "Game Over",
-                JOptionPane.INFORMATION_MESSAGE);
 
-        initEntities();
+        app.gameEnded();
     }
+        
+    /**
+     * Returns true if game over condition is met.  In this case the condition
+     * is that all invading aliens are deceased.
+     * 
+     * @return true if condition is met.
+     */
+    public boolean isGameOverConditionMet() {
+        return alienCount == 0 || humansDead;
+    }
+    
+    public boolean isGameWon() {
+        return !humansDead;
+    }
+    
+    /**
+     * Retrieve current game score (out of 1000) or score of last game.
+     * @return game score
+     */
+    public int getScore() {
+        return iterations > 500 ? 0 : (500 - iterations)*500;
+    }
+
     
     /**
      * Iterate game state.  This method is responsible for:
@@ -332,6 +363,9 @@ public class GamePanel extends JPanel {
      * @param delta Number of milliseconds to increment state by.
      */
     public void gameIterate(long delta) {
+        
+        // Increment score:
+        iterations += 1;
 
         // cycle round asking each entity to move itself
         for (Entity entity : entities) {

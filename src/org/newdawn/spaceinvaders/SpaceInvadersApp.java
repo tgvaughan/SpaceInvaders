@@ -21,6 +21,8 @@ import javax.swing.KeyStroke;
 public class SpaceInvadersApp extends JFrame {
     
     private final GamePanel game;
+    
+    final private JMenuItem menuItemGamePause;
 
     /**
      * Create new Space Invaders application.
@@ -42,7 +44,7 @@ public class SpaceInvadersApp extends JFrame {
         menuItemGameNew.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK));
         menuGame.add(menuItemGameNew);
         
-        final JMenuItem menuItemGamePause = new JMenuItem("Pause/Unpause", KeyEvent.VK_P);
+        menuItemGamePause = new JMenuItem("Pause/Unpause", KeyEvent.VK_P);
         menuItemGamePause.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
         menuItemGamePause.setEnabled(false);
         menuGame.add(menuItemGamePause);
@@ -106,7 +108,7 @@ public class SpaceInvadersApp extends JFrame {
         });
         
         // Set up game canvas:
-        game = new GamePanel();
+        game = new GamePanel(this);
         add(game);
         
         // Cause outer components to adjust to the the size of the canvas:
@@ -116,8 +118,30 @@ public class SpaceInvadersApp extends JFrame {
         // the window size:
         setResizable(false);
         
+        // Centre window initially.
+        setLocationRelativeTo(null);
+        
         // Define what happens when a user closes the game window:
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+    }
+    
+    /**
+     * Method called by game when a game has been won/lost.
+     */
+    public void gameEnded() {
+        String message;
+        if (game.isGameWon()) {
+            message = "You defeated the alien menace!  Congratulations!\n\n"
+                    + "Your score was " + game.getScore();
+        } else {
+            message = "Oh no! The aliens have defeated you.";
+        }
+        
+        JOptionPane.showMessageDialog(this,
+                message, "Game Over",
+                JOptionPane.INFORMATION_MESSAGE);
+
+        menuItemGamePause.setEnabled(false);
     }
     
     /**
