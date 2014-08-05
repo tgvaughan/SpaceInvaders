@@ -65,26 +65,32 @@ public class SpaceInvadersApp extends JFrame {
         
         setJMenuBar(menuBar);
         
+        
         // Set up listeners for menu item selection events:
+        
         menuItemGameNew.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 menuItemGamePause.setEnabled(true);
-                start();
+                game.requestFocus();
+                game.startGame();
             }
         });
+        
         menuItemGamePause.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 game.pauseGame();
             }
         });
+        
         menuItemGameExit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.exit(0);
             }
         });
+        
         menuItemHelpAbout.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -112,14 +118,6 @@ public class SpaceInvadersApp extends JFrame {
         
         // Define what happens when a user closes the game window:
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-    }
-
-    /**
-     * Start the game loop.
-     */
-    public void start() {
-        game.requestFocus();
-        game.startGame();
     }
     
     /**

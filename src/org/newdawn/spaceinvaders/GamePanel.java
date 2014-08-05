@@ -2,15 +2,14 @@ package org.newdawn.spaceinvaders;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
-
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -59,6 +58,7 @@ public class GamePanel extends JPanel {
      * The interval between our players shot (ms)
      */
     private final long firingInterval = 500;
+    
     /**
      * The number of aliens left on the screen
      */
@@ -68,7 +68,12 @@ public class GamePanel extends JPanel {
      * Set to true if an alien reaches the bottom of the screen or
      * collides with the player's ship.
      */
-    private boolean humansDead;
+    private boolean humansDead = false;
+    
+    /**
+     * Set to true if a game is in progress.
+     */
+    private boolean gameInProgress = false;
 
     /**
      * True if the left cursor key is currently pressed
@@ -101,8 +106,9 @@ public class GamePanel extends JPanel {
      */
     public GamePanel() {
 
+        // Set preferred size of panel.
         setPreferredSize(new Dimension(800, 600));
-        setSize(new Dimension(800, 600));
+
         // setup our canvas size and put it into the content of the frame
         setBounds(0, 0, 800, 600);
 
@@ -126,6 +132,8 @@ public class GamePanel extends JPanel {
 
     /**
      * Paint the panel.  Called whenever the panel needs to be redrawn.
+     * Displays relevant game messages when game is not running.
+     * 
      * @param g 
      */
     @Override
@@ -138,6 +146,27 @@ public class GamePanel extends JPanel {
         for (Entity entity : entities) {
             entity.draw(g);
         }
+        
+        if (gameInProgress) {
+            if (!timer.isRunning()) {
+                g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 100));
+                g.setColor(Color.white);
+                g.drawString("PAUSED", 200, 300);
+            }
+        } else {
+            if (isGameOverConditionMet()) {
+                g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 100));
+                g.setColor(Color.yellow);
+                g.drawString("GAME OVER", 200, 300);
+            } else {
+                g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 40));
+                g.setColor(Color.yellow);
+                g.drawString("SPACE INVADERS", 200, 250);
+                g.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 40));
+                g.setColor(Color.white);
+                g.drawString("Use Ctrl-N to begin new game.", 80, 350);
+            }
+        } 
     }
     
 
@@ -155,16 +184,14 @@ public class GamePanel extends JPanel {
 
         // create a block of aliens (5 rows, by 12 aliens, spaced evenly)
         alienCount = 0;
-        for (int row = 0; row < 1; row++) {
+        for (int row = 0; row < 5; row++) {
             for (int x = 0; x < 12; x++) {
                 Entity alien = new AlienEntity(this, "sprites/alien.gif", 100 + (x * 50), (50) + row * 30);
                 entities.add(alien);
                 alienCount++;
             }
         }
-        
-        // Initialise gameLosingFlag
-        humansDead = false;
+
     }
 
     /**
@@ -238,6 +265,10 @@ public class GamePanel extends JPanel {
         leftPressed = false;
         rightPressed = false;
         firePressed = false;
+
+        // Initialise game flags:
+        gameInProgress = true;
+        humansDead = false;
         
         timer.start();
     }
@@ -246,9 +277,11 @@ public class GamePanel extends JPanel {
      * Stop/pause the game.
      */
     public void pauseGame() {
-        if (timer.isRunning())
+        if (timer.isRunning()) {
             timer.stop();
-        else
+            
+            repaint(); // Trigger repaint to display PAUSED message.
+        } else
             timer.start();
     }
     
@@ -270,8 +303,9 @@ public class GamePanel extends JPanel {
     /**
      * Display wining/loosing message then reset game.
      */
-    private void gameFinished() {
+    private void endGame() {
         timer.stop();
+        gameInProgress = false;
         
         String message;
         if (isGameWon()) {
@@ -338,7 +372,7 @@ public class GamePanel extends JPanel {
         repaint();
         
         if (isGameOverConditionMet()) {
-            gameFinished();
+            endGame();
             return;
         }
 
