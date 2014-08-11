@@ -1,4 +1,4 @@
-package org.newdawn.spaceinvaders;
+package spaceinvaders;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 

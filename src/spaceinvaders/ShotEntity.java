@@ -1,4 +1,4 @@
-package org.newdawn.spaceinvaders;
+package spaceinvaders;
 
 /**
  * An entity representing a shot fired by the player's ship

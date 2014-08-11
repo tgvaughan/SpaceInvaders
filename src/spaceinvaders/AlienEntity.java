@@ -1,4 +1,4 @@
-package org.newdawn.spaceinvaders;
+package spaceinvaders;
 
 /**
  * An entity which represents one of our space invader aliens.

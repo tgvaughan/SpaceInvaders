@@ -1,4 +1,4 @@
-package org.newdawn.spaceinvaders;
+package spaceinvaders;
 
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
