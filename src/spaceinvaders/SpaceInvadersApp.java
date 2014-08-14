@@ -1,10 +1,10 @@
 package spaceinvaders;
 
+import java.awt.Container;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -33,6 +33,9 @@ public class SpaceInvadersApp extends JFrame {
         // Set title of application window.
         setTitle("Space Invaders");
 
+        // Get content pane:
+        Container cp = getContentPane();
+        
         // Set up menu hierarchy:
         
         JMenuBar menuBar = new JMenuBar();
@@ -109,7 +112,7 @@ public class SpaceInvadersApp extends JFrame {
         
         // Set up game canvas:
         game = new GamePanel(this);
-        add(game);
+        cp.add(game);
         
         // Cause outer components to adjust to the the size of the canvas:
         pack();
