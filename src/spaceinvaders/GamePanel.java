@@ -31,7 +31,7 @@ public class GamePanel extends JPanel {
     /**
      * The list of all the entities that exist in our game
      */
-    private final ArrayList<Entity> entities = new ArrayList<>();
+    private final ArrayList<Entity> entities = new ArrayList<Entity>();
 
     /**
      * The list of entities that need to be removed from the game this loop
